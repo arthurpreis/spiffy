@@ -92,12 +92,14 @@ class CircularOrbit2D(Orbit):
 class CircularOrbit3D(Orbit):
     '''Model of a ideal 3D orbit'''
 
-    def __init__(self, parentFrame, frame = None, center = None,
+    def __init__(self, parentFrame, center = None,
                  radius: float = 0, omega: float = 0, inclination: float = 0,
                  phase: float = 0, ascNode: float = 0, color = (0, 0, 0)):
-        super().__init__(frame, center, color)
-        self.frame = parentFrame.orientnew('frame', 'Axis', (inclination, frame.x))
+        super().__init__(parentFrame, center, color)
+        self.frame = parentFrame.orientnew(
+                'frame', 'Space', (inclination, 0, ascNode), 123)
         # todo: orient new frame with 'Space'
+        # todo: fix frame naming scheme
         self.radius = radius
         self.omega = omega  # todo: rename parm
         self.phase = phase  # todo: rename parm
@@ -120,6 +122,21 @@ class CircularOrbit3D(Orbit):
         elif type(self.center) is CircularOrbit3D:
             return x + y + z + self.center.get_position(epoch).express(frame)
 
+    def get_position_matrix(self, epoch, frame):
+        """Returns matrix instead of Vector to be used w/ Plotter"""
+        return self.get_position(epoch).to_matrix(frame)
+
+    def get_direction(self, other, epoch, frame):
+        print(other.get_position(epoch, frame))
+        print(self)
+        print(other)
+        print(self.get_position(epoch, frame))
+        direction = other.get_position(epoch, frame) - self.get_position(epoch, frame)
+        return direction.simplify().normalize()
+
+    def get_direction_matrix(self, other, epoch, frame):
+        return self.get_direction(other, epoch, frame).to_matrix(frame)
+
     def plot_orbit2D(self, center = None):
         # DEPRECATED
         t = linspace(0, 5, 3000)
@@ -140,30 +157,47 @@ class CircularOrbit3D(Orbit):
 if __name__ == '__main__':
     # testing the orbit and plotter classes
     N = ReferenceFrame('N')
-    t = linspace(0, 0.5, 500)  # numpy array
+    t = linspace(0.1, 0.5, 500)  # numpy array
 
     # creates 3 orbits. Two objects orbiting a main body
-    earth_orbit = CircularOrbit3D(N, N, None, 1, 1, 0, color = (1, 1, 1))
-    sat1_orbit = CircularOrbit3D(N, N, center = earth_orbit, radius = 0.1,
-                                 omega = 100, inclination = np.pi / 2,
-                                 color = (0, 1, 0))
-    sat2_orbit = CircularOrbit3D(N, N, center = earth_orbit, radius = 0.08,
-                                 omega = 120, inclination = np.pi / 6,
-                                 color = (0, 0, 1))
+    earth_orbit = CircularOrbit3D(N, None, 1, 1, 0, color = (1, 1, 1))
+    sat1_orbit = CircularOrbit3D(N, center = earth_orbit, radius = 0.1,
+                                 omega = 120, inclination = 85*(np.pi/180),
+                                 ascNode = 0, color = (0, 1, 0))
+    sat2_orbit = CircularOrbit3D(N, center = earth_orbit, radius = 0.1,
+                                 omega = 120, inclination = 85*(np.pi/180),
+                                 ascNode = 120*(np.pi/180), color = (0, 0, 1))
+    sat3_orbit = CircularOrbit3D(N, center = earth_orbit, radius = 0.1,
+                                 omega = 120, inclination = 85*(np.pi/180),
+                                 ascNode = 240*(np.pi/180), color = (1, 0, 0))
 
     # testing plotter functionalities
-    orbits = [earth_orbit, sat1_orbit, sat2_orbit]
+    orbits = [earth_orbit, sat1_orbit, sat2_orbit, sat3_orbit]
     for obt in orbits:
         Plotter.plot_trajectory(obt.get_trajectory(t, frame = N),
                                 tube_radius = None, color = obt.color)
-        Plotter.plot_point(obt.get_position(0, N).to_matrix(N),
+        Plotter.plot_point(obt.get_position_matrix(0.1, N),
                            scale_factor = 0.01, color = obt.color)
 
-    Plotter.plot_separation(sat1_orbit.get_position(0, N).to_matrix(N),
-                            sat2_orbit.get_position(0, N).to_matrix(N),
-                            tube_radius = None, color = (1, 1, 1))
-    Plotter.plot_vector(sat1_orbit.get_position(0, N).to_matrix(N),
-                        sat2_orbit.get_position(0, N).to_matrix(N) -
-                        sat1_orbit.get_position(0, N).to_matrix(N))
+    #Plotter.plot_separation(sat1_orbit.get_position_matrix(0, N),
+    #                        sat2_orbit.get_position_matrix(0, N),
+    #                        tube_radius = None, color = (1, 1, 1))
+    #Plotter.plot_separation(sat1_orbit.get_position_matrix(0, N),
+    #                        sat3_orbit.get_position_matrix(0, N),
+    #                        tube_radius = None, color = (1, 1, 1))
+    #Plotter.plot_separation(sat3_orbit.get_position_matrix(0, N),
+    #                        sat2_orbit.get_position_matrix(0, N),
+    #                        tube_radius = None, color = (1, 1, 1))
+
+    avg_pos = (sat1_orbit.get_position_matrix(0.1, N) +
+               sat2_orbit.get_position_matrix(0.1, N) +
+               sat3_orbit.get_position_matrix(0.1, N))/3
+    plane_vec = sat1_orbit.get_direction_matrix(sat2_orbit, 0.1, N)
+        #.cross(
+         #   sat1_orbit.get_direction(sat3_orbit, 0, N))
+    print(plane_vec)
+    #Plotter.plot_vector(avg_pos, plane_vec.to_matrix(N))
+                        #sat1_orbit.get_direction_matrix(sat2_orbit, 0, N))
+                       # scale_factor = 0.5, color = (1, 1, 1))
 
     mlab.show()  # calls mayavi show
