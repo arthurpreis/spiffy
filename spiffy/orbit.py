@@ -2,7 +2,7 @@ import numpy as np
 from mayavi import mlab
 from sympy.physics.mechanics import *
 from numpy import cos, sin, linspace
-from plotter import Plotter
+from spiffy.plotter import Plotter
 
 
 class Orbit:
@@ -32,7 +32,7 @@ class Orbit:
             # some way to add the possib. of plotting around earth
             frame = self.frame
 
-        for idx, ti in enumerate(t):
+        for idx, ti in enumerate(epoch):
             # calls get_position() for each time, subtract center position
             if center is None:
                 vec = self.get_position(ti).to_matrix(frame)
@@ -171,33 +171,14 @@ if __name__ == '__main__':
                                  omega = 120, inclination = 85*(np.pi/180),
                                  ascNode = 240*(np.pi/180), color = (1, 0, 0))
 
-    # testing plotter functionalities
     orbits = [earth_orbit, sat1_orbit, sat2_orbit, sat3_orbit]
     for obt in orbits:
         Plotter.plot_trajectory(obt.get_trajectory(t, frame = N),
                                 tube_radius = None, color = obt.color)
         Plotter.plot_point(obt.get_position_matrix(0.1, N),
                            scale_factor = 0.01, color = obt.color)
-
-    #Plotter.plot_separation(sat1_orbit.get_position_matrix(0, N),
-    #                        sat2_orbit.get_position_matrix(0, N),
-    #                        tube_radius = None, color = (1, 1, 1))
-    #Plotter.plot_separation(sat1_orbit.get_position_matrix(0, N),
-    #                        sat3_orbit.get_position_matrix(0, N),
-    #                        tube_radius = None, color = (1, 1, 1))
-    #Plotter.plot_separation(sat3_orbit.get_position_matrix(0, N),
-    #                        sat2_orbit.get_position_matrix(0, N),
-    #                        tube_radius = None, color = (1, 1, 1))
-
     avg_pos = (sat1_orbit.get_position_matrix(0.1, N) +
                sat2_orbit.get_position_matrix(0.1, N) +
                sat3_orbit.get_position_matrix(0.1, N))/3
     plane_vec = sat1_orbit.get_direction_matrix(sat2_orbit, 0.1, N)
-        #.cross(
-         #   sat1_orbit.get_direction(sat3_orbit, 0, N))
-    print(plane_vec)
-    #Plotter.plot_vector(avg_pos, plane_vec.to_matrix(N))
-                        #sat1_orbit.get_direction_matrix(sat2_orbit, 0, N))
-                       # scale_factor = 0.5, color = (1, 1, 1))
-
     mlab.show()  # calls mayavi show
