@@ -50,7 +50,7 @@ class CircularOrbit2D(Orbit):
                 omega = 0.0, phase = 0.0):
         super().__init__(frame, center)
         self.radius = phase
-        self.omega = phase
+        self.omega = omega
         self.phase = phase
 
     def get_position(self, epoch, frame = None):
@@ -126,16 +126,20 @@ class CircularOrbit3D(Orbit):
         """Returns matrix instead of Vector to be used w/ Plotter"""
         return self.get_position(epoch).to_matrix(frame)
 
-    def get_direction(self, other, epoch, frame):
-        print(other.get_position(epoch, frame))
-        print(self)
-        print(other)
-        print(self.get_position(epoch, frame))
-        direction = other.get_position(epoch, frame) - self.get_position(epoch, frame)
-        return direction.simplify().normalize()
-
     def get_direction_matrix(self, other, epoch, frame):
-        return self.get_direction(other, epoch, frame).to_matrix(frame)
+        #print("get dir:")
+        #print(self)
+        se = self.get_position_matrix(epoch, frame)
+        #print(other)
+        ot = other.get_position_matrix(epoch, frame)
+        direction = ot - se
+        return direction
+
+    #def get_direction_matrix(self, other, epoch, frame):
+    #    print("get dir matrix:")
+    #    print(self)
+    #    print(other)
+    #    return self.get_direction(other, epoch, frame).to_matrix(frame)
 
     def plot_orbit2D(self, center = None):
         # DEPRECATED
