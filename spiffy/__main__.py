@@ -1,17 +1,19 @@
-from spiffy.orbit import *
+from spiffy.orbit3D import *
+from spiffy.orbit2D import *
+from numpy import linspace, pi
 
 if __name__ == '__main__':
     # testing the orbit and plotter classes
-    mlab.figure(size = (800, 600))
+#    mlab.figure(size = (800, 600))
 
     N = ReferenceFrame('N')
     t = linspace(0, 6.3, 2000)  # numpy array
     #ti = 0.4
     # creates 3 orbits. Two objects orbiting a main body
     #earth_orbit = CircularOrbit3D(N, None, 1, 1, 0, color = (0.2, 0.7, 0.3))
-    sat1_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(np.pi/180), ascNode = 0*(np.pi/180), phase = (0+180)*(np.pi/180), color = (1, 0, 0))
-    sat2_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(np.pi/180), ascNode = 120*(np.pi/180), phase = (-120+60)*(np.pi/180), color = (0, 1, 0))
-    sat3_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(np.pi/180), ascNode = 240*(np.pi/180), phase = (-240-60)*(np.pi/180), color = (0, 0, 1))
+    sat1_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(pi/180), ascNode = 0*(pi/180), phase = (0+180)*(pi/180), color = (1, 0, 0))
+    sat2_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(pi/180), ascNode = 120*(pi/180), phase = (-120+60)*(pi/180), color = (0, 1, 0))
+    sat3_orbit = CircularOrbit3D(N, radius = 1, omega = 1, inclination = 5*(pi/180), ascNode = 240*(pi/180), phase = (-240-60)*(pi/180), color = (0, 0, 1))
 
     orbits = [sat1_orbit, sat2_orbit, sat3_orbit]
     #for i, ti in enumerate(t):
@@ -50,7 +52,7 @@ if __name__ == '__main__':
                             scale_factor = 4)
         filename = "test_cartwheel" + str(i) + ".png"
 
-        mlab.view(distance = 4, elevation = 80)
-        mlab.show()  # calls mayavi show
+        #mlab.view(distance = 4, elevation = 80)
+        Plotter.show3d()  # calls mayavi show
         #mlab.savefig(filename)
-        mlab.clf()
+        #mlab.clf()
