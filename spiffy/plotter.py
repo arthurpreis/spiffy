@@ -59,6 +59,13 @@ class Plotter:
         return plot
 
     @staticmethod
+    def plot_surface(points, **kwargs):
+        """Plots surface from points (3d numpy array).
+        Returns plot3d object"""
+        plot = mlab.contour3d(points[0], points[1], points[2])
+        return plot
+
+    @staticmethod
     def show3d():
         return mlab.show()
 
