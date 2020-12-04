@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="spiffy", # Replace with your own username
-    version="0.0.9",
+    version="0.0.10",
     author="Arthur Reis",
     author_email="arpereis@gmail.com",
     description="Space Interferometer Python Framework",
